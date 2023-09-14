@@ -82,5 +82,3 @@ EOF
 --bind=/sys \
 --bind=/tmp \
 /bin/sh
-/bin/sh ngrok authtoken 1oWIgs5nRWIy9S0VZxLo64oZdXw_6RnDrQGZvSkp7KpWrgcna
-/bin/sh ./run-ssh.sh
