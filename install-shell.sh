@@ -1,127 +1,92 @@
-#!/bin/bash
-HOME="/home/container"
-HOMEA="$HOME/linux/.apt"
-STAR1="$HOMEA/lib:$HOMEA/usr/lib:$HOMEA/var/lib:$HOMEA/usr/lib/x86_64-linux-gnu:$HOMEA/lib/x86_64-linux-gnu:$HOMEA/lib:$HOMEA/usr/lib/sudo"
-STAR2="$HOMEA/usr/include/x86_64-linux-gnu:$HOMEA/usr/include/x86_64-linux-gnu/bits:$HOMEA/usr/include/x86_64-linux-gnu/gnu"
-STAR3="$HOMEA/usr/share/lintian/overrides/:$HOMEA/usr/src/glibc/debian/:$HOMEA/usr/src/glibc/debian/debhelper.in:$HOMEA/usr/lib/mono"
-STAR4="$HOMEA/usr/src/glibc/debian/control.in:$HOMEA/usr/lib/x86_64-linux-gnu/libcanberra-0.30:$HOMEA/usr/lib/x86_64-linux-gnu/libgtk2.0-0"
-STAR5="$HOMEA/usr/lib/x86_64-linux-gnu/gtk-2.0/modules:$HOMEA/usr/lib/x86_64-linux-gnu/gtk-2.0/2.10.0/immodules:$HOMEA/usr/lib/x86_64-linux-gnu/gtk-2.0/2.10.0/printbackends"
-STAR6="$HOMEA/usr/lib/x86_64-linux-gnu/samba/:$HOMEA/usr/lib/x86_64-linux-gnu/pulseaudio:$HOMEA/usr/lib/x86_64-linux-gnu/blas:$HOMEA/usr/lib/x86_64-linux-gnu/blis-serial"
-STAR7="$HOMEA/usr/lib/x86_64-linux-gnu/blis-openmp:$HOMEA/usr/lib/x86_64-linux-gnu/atlas:$HOMEA/usr/lib/x86_64-linux-gnu/tracker-miners-2.0:$HOMEA/usr/lib/x86_64-linux-gnu/tracker-2.0:$HOMEA/usr/lib/x86_64-linux-gnu/lapack:$HOMEA/usr/lib/x86_64-linux-gnu/gedit"
-STARALL="$STAR1:$STAR2:$STAR3:$STAR4:$STAR5:$STAR6:$STAR7"
-export LD_LIBRARY_PATH=$STARALL
-export PATH="/bin:/usr/bin:/usr/local/bin:/sbin:$HOMEA/bin:$HOMEA/usr/bin:$HOMEA/sbin:$HOMEA/usr/sbin:$HOMEA/etc/init.d:$PATH"
-export BUILD_DIR=$HOMEA
+#!/bin/sh
 
-bold=$(echo -en "\e[1m")
-nc=$(echo -en "\e[0m")
-lightblue=$(echo -en "\e[94m")
-lightgreen=$(echo -en "\e[92m")
+#############################
+# Alpine Linux Installation #
+#############################
 
-echo "
-${bold}${darkblue}========================================================================
-${bold}${lightblue}                                                                                                  
-${bold}${lightblue} ▄▄▄      ▒██   ██▒    ██▀███   ██▒   █▓ ▄████▄       ██████  ██░ ██ ▓█████  ██▓     ██▓    
-${bold}${lightblue}▒████▄    ▒▒ █ █ ▒░   ▓██ ▒ ██▒▓██░   █▒▒██▀ ▀█     ▒██    ▒ ▓██░ ██▒▓█   ▀ ▓██▒    ▓██▒    
-${bold}${lightblue}▒██  ▀█▄  ░░  █   ░   ▓██ ░▄█ ▒ ▓██  █▒░▒▓█    ▄    ░ ▓██▄   ▒██▀▀██░▒███   ▒██░    ▒██░    
-${bold}${lightblue}░██▄▄▄▄██  ░ █ █ ▒    ▒██▀▀█▄    ▒██ █░░▒▓▓▄ ▄██▒     ▒   ██▒░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██░    
-${bold}${lightblue} ▓█   ▓██▒▒██▒ ▒██▒   ░██▓ ▒██▒   ▒▀█░  ▒ ▓███▀ ░   ▒██████▒▒░▓█▒░██▓░▒████▒░██████▒░██████▒
-${bold}${lightblue} ▒▒   ▓▒█░▒▒ ░ ░▓ ░   ░ ▒▓ ░▒▓░   ░ ▐░  ░ ░▒ ▒  ░   ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░░ ▒░▓  ░
-${bold}${lightblue}  ▒   ▒▒ ░░░   ░▒ ░     ░▒ ░ ▒░   ░ ░░    ░  ▒      ░ ░▒  ░ ░ ▒ ░▒░ ░ ░ ░  ░░ ░ ▒  ░░ ░ ▒  ░
-${bold}${lightblue}  ░   ▒    ░    ░       ░░   ░      ░░  ░           ░  ░  ░   ░  ░░ ░   ░     ░ ░     ░ ░   
-${bold}${lightblue}      ░  ░ ░    ░        ░           ░  ░ ░               ░   ░  ░  ░   ░  ░    ░  ░    ░  ░
-${bold}${lightblue}                                                                           
-${bold}${darkblue}========================================================================
- "
- 
-echo "${nc}"
+# Define the root directory to /home/container.
+# We can only write in /home/container and /tmp in the container.
+ROOTFS_DIR="/home/container"
 
-if [[ -f "./installed" ]]; then
-    echo "${bold}${lightgreen}==> Started ${lightblue}AX RVC Shell${lightgreen} <=="
-    function runcmd1 {
-        printf "Now you need to stop this process and go to next step"
-        read -r cmdtorun
-        ./libraries/proot -S . /bin/bash -c "$cmdtorun"
-        runcmd
-    }
-    function runcmd {
-        printf "Now you need to stop this process and go to next step"
-        read -r cmdtorun
-        ./libraries/proot -S . /bin/bash -c "$cmdtorun"
-        runcmd1
-    }
-    runcmd
-else
-    echo "Downloading files for application"
-    curl -sSLo ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip >/dev/null 2>err.log
-    echo -ne '#                   (5%)\r'
-    curl -sSLo files.zip https://github.com/RealTriassic/Ptero-VM-JAR/releases/download/latest/files.zip >/dev/null 2>err.log
-    echo -ne '##                  (10%)\r'
-    curl -sSLo unzip https://raw.githubusercontent.com/afnan007a/Ptero-vm/main/unzip >/dev/null 2>err.log
-    echo -ne '####                (20%)\r'
-    curl -sSLo gotty https://raw.githubusercontent.com/afnan007a/Replit-Vm/main/gotty >/dev/null 2>err.log
-    echo -ne '#####               (25%)\r'
-    chmod +x unzip >/dev/null 2>err.log
-    export PATH="/bin:/usr/bin:/usr/local/bin:/sbin:$HOMEA/bin:$HOMEA/usr/bin:$HOMEA/sbin:$HOMEA/usr/sbin:$HOMEA/etc/init.d:$PATH"
-    ./unzip ngrok.zip >/dev/null 2>err.log
-    echo -ne '######               (30%)\r'
-    ./unzip files.zip >/dev/null 2>err.log
-    echo -ne '#######              (35%)\r'
-    ./unzip root.zip
-    tar -xf root.tar.gz >/dev/null 2>err.log
-    echo -ne '########             (40%)\r'
-    chmod +x ./libraries/proot >/dev/null 2>err.log
-    echo -ne '#########            (45%)\r'
-    chmod +x ngrok >/dev/null 2>err.log
-    echo -ne '##########           (50%)\r'
-    chmod +x gotty >/dev/null 2>err.log
-    echo -ne '###########          (55%)\r'
-    rm -rf files.zip >/dev/null 2>err.log
-    rm -rf root.zip >/dev/null 2>err.log
-    rm -rf root.tar.gz >/dev/null 2>err.log
-    rm -rf ngrok.zip >/dev/null 2>err.log
-    echo -ne '############         (60%)\r'
+# Define the Alpine Linux version we are going to be using.
+ALPINE_VERSION="3.18"
+ALPINE_FULL_VERSION="3.18.3"
+APK_TOOLS_VERSION="2.14.0-r2" # Make sure to update this too when updating Alpine Linux.
+PROOT_VERSION="5.3.0" # Some releases do not have static builds attached.
 
-    cmds=("mv gotty /usr/bin/" "mv unzip /usr/bin/" "mv ngrok /usr/bin/" "apt-get update" "apt-get -y upgrade" "apt-get -y install sudo curl wget hwloc htop nano neofetch python3" "curl -o /bin/systemctl https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py")
+ARCH_ALT=amd64
 
-    for cmd in "${cmds[@]}"; do
-        ./libraries/proot -S . /bin/bash -c "$cmd >/dev/null 2>err.log"
-    done
-    echo -ne '####################(100%)\r'
-    echo -ne '\n'
-    touch installed
-    
-    echo "
-${bold}${darkblue}========================================================================
-${bold}${lightblue}                                                                                                  
-${bold}${lightblue} ▄▄▄      ▒██   ██▒    ██▀███   ██▒   █▓ ▄████▄       ██████  ██░ ██ ▓█████  ██▓     ██▓    
-${bold}${lightblue}▒████▄    ▒▒ █ █ ▒░   ▓██ ▒ ██▒▓██░   █▒▒██▀ ▀█     ▒██    ▒ ▓██░ ██▒▓█   ▀ ▓██▒    ▓██▒    
-${bold}${lightblue}▒██  ▀█▄  ░░  █   ░   ▓██ ░▄█ ▒ ▓██  █▒░▒▓█    ▄    ░ ▓██▄   ▒██▀▀██░▒███   ▒██░    ▒██░    
-${bold}${lightblue}░██▄▄▄▄██  ░ █ █ ▒    ▒██▀▀█▄    ▒██ █░░▒▓▓▄ ▄██▒     ▒   ██▒░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██░    
-${bold}${lightblue} ▓█   ▓██▒▒██▒ ▒██▒   ░██▓ ▒██▒   ▒▀█░  ▒ ▓███▀ ░   ▒██████▒▒░▓█▒░██▓░▒████▒░██████▒░██████▒
-${bold}${lightblue} ▒▒   ▓▒█░▒▒ ░ ░▓ ░   ░ ▒▓ ░▒▓░   ░ ▐░  ░ ░▒ ▒  ░   ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░░ ▒░▓  ░
-${bold}${lightblue}  ▒   ▒▒ ░░░   ░▒ ░     ░▒ ░ ▒░   ░ ░░    ░  ▒      ░ ░▒  ░ ░ ▒ ░▒░ ░ ░ ░  ░░ ░ ▒  ░░ ░ ▒  ░
-${bold}${lightblue}  ░   ▒    ░    ░       ░░   ░      ░░  ░           ░  ░  ░   ░  ░░ ░   ░     ░ ░     ░ ░   
-${bold}${lightblue}      ░  ░ ░    ░        ░           ░  ░ ░               ░   ░  ░  ░   ░  ░    ░  ░    ░  ░
-${bold}${lightblue} 
-${bold}${lightblue} Welcome to AX RVC Shell!                                                                                  
-${bold}${darkblue}========================================================================
- "
- 
-echo "${nc}"
-    
-    echo "${bold}${lightgreen}==> Started ${lightblue}AX RVC Shell${lightgreen} <=="
-    function runcmd1 {
-        printf "Now you need to stop this process and go to next step"
-        read -r cmdtorun
-        ./libraries/proot -S . /bin/bash -c "$cmdtorun"
-        runcmd
-    }
-    function runcmd {
-        printf "Now you need to stop this process and go to next step"
-        read -r cmdtorun
-        ./libraries/proot -S . /bin/bash -c "$cmdtorun"
-        runcmd1
-    }
-    runcmd
+# Download & decompress the Alpine linux root file system if not already installed.
+if [ ! -e $ROOTFS_DIR/.installed ]; then
+    # Download Alpine Linux root file system.
+    curl -Lo /tmp/rootfs.tar.gz \
+    "https://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/releases/${ARCH}/alpine-minirootfs-${ALPINE_FULL_VERSION}-${ARCH}.tar.gz"
+    # Extract the Alpine Linux root file system.
+    tar -xzf /tmp/rootfs.tar.gz -C $ROOTFS_DIR
 fi
+
+################################
+# Package Installation & Setup #
+################################
+
+# Download static APK-Tools temporarily because minirootfs does not come with APK pre-installed.
+if [ ! -e $ROOTFS_DIR/.installed ]; then
+    # Download the packages from their sources.
+    curl -Lo /tmp/apk-tools-static.apk "https://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main/${ARCH}/apk-tools-static-${APK_TOOLS_VERSION}.apk"
+    curl -Lo /tmp/gotty.tar.gz "https://github.com/sorenisanerd/gotty/releases/download/v1.5.0/gotty_v1.5.0_linux_${ARCH_ALT}.tar.gz"
+    curl -Lo $ROOTFS_DIR/usr/local/bin/proot "https://github.com/proot-me/proot/releases/download/v${PROOT_VERSION}/proot-v${PROOT_VERSION}-${ARCH}-static"
+    # Extract everything that needs to be extracted.
+    tar -xzf /tmp/apk-tools-static.apk -C /tmp/
+    tar -xzf /tmp/gotty.tar.gz -C $ROOTFS_DIR/usr/local/bin
+    # Install base system packages using the static APK-Tools.
+    /tmp/sbin/apk.static -X "https://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main/" -U --allow-untrusted --root $ROOTFS_DIR add alpine-base apk-tools
+    # Make PRoot and GoTTY executable.
+    chmod 755 $ROOTFS_DIR/usr/local/bin/proot $ROOTFS_DIR/usr/local/bin/gotty
+fi
+
+# Clean-up after installation complete & finish up.
+if [ ! -e $ROOTFS_DIR/.installed ]; then
+    # Add DNS Resolver nameservers to resolv.conf.
+    printf "nameserver 1.1.1.1\nnameserver 1.0.0.1" > ${ROOTFS_DIR}/etc/resolv.conf
+    # Wipe the files we downloaded into /tmp previously.
+    rm -rf /tmp/apk-tools-static.apk /tmp/rootfs.tar.gz /tmp/sbin
+    # Create .installed to later check whether Alpine is installed.
+    touch $ROOTFS_DIR/.installed
+fi
+
+# Print some useful information to the terminal before entering PRoot.
+# This is to introduce the user with the various Alpine Linux commands.
+clear && cat << EOF
+                                                                                                
+ ▄▄▄      ▒██   ██▒    ██▀███   ██▒   █▓ ▄████▄       ██████  ██░ ██ ▓█████  ██▓     ██▓    
+▒████▄    ▒▒ █ █ ▒░   ▓██ ▒ ██▒▓██░   █▒▒██▀ ▀█     ▒██    ▒ ▓██░ ██▒▓█   ▀ ▓██▒    ▓██▒    
+▒██  ▀█▄  ░░  █   ░   ▓██ ░▄█ ▒ ▓██  █▒░▒▓█    ▄    ░ ▓██▄   ▒██▀▀██░▒███   ▒██░    ▒██░    
+░██▄▄▄▄██  ░ █ █ ▒    ▒██▀▀█▄    ▒██ █░░▒▓▓▄ ▄██▒     ▒   ██▒░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██░    
+ ▓█   ▓██▒▒██▒ ▒██▒   ░██▓ ▒██▒   ▒▀█░  ▒ ▓███▀ ░   ▒██████▒▒░▓█▒░██▓░▒████▒░██████▒░██████▒
+ ▒▒   ▓▒█░▒▒ ░ ░▓ ░   ░ ▒▓ ░▒▓░   ░ ▐░  ░ ░▒ ▒  ░   ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░░ ▒░▓  ░
+  ▒   ▒▒ ░░░   ░▒ ░     ░▒ ░ ▒░   ░ ░░    ░  ▒      ░ ░▒  ░ ░ ▒ ░▒░ ░ ░ ░  ░░ ░ ▒  ░░ ░ ▒  ░
+  ░   ▒    ░    ░       ░░   ░      ░░  ░           ░  ░  ░   ░  ░░ ░   ░     ░ ░     ░ ░   
+      ░  ░ ░    ░        ░           ░  ░ ░               ░   ░  ░  ░   ░  ░    ░  ░    ░  ░
+                                                                          
+
+ Welcome to AX RVC Shell!
+ 
+EOF
+
+###########################
+# Start PRoot environment #
+###########################
+
+# This command starts PRoot and binds several important directories
+# from the host file system to our special root file system.
+$ROOTFS_DIR/usr/local/bin/proot \
+--rootfs="${ROOTFS_DIR}" \
+--link2symlink \
+--kill-on-exit \
+--root-id \
+--cwd=/root \
+--bind=/proc \
+--bind=/dev \
+--bind=/sys \
+--bind=/tmp \
+/bin/sh
